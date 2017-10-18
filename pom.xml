@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.fit2cloud</groupId>
+    	<artifactId>cloud-plugins</artifactId>
+	<packaging>pom</packaging>
+	<version>0.2</version>
+    <modules>
+        <module>fit2cloud-openstackV3-HT-plugin</module>
+    </modules>
+    <name>Fit2Cloud Cloud Plugins</name>
+
+	<properties>
+		<fit2cloud.version>0.2</fit2cloud.version>
+               	<plugin.aws>fit2cloud-aws-plugin</plugin.aws>
+               	<plugin.qingcloud>fit2cloud-qingcloud-plugin</plugin.qingcloud>
+               	<plugin.aliyun>fit2cloud-aliyun-plugin</plugin.aliyun>
+              	<plugin.ucloud>fit2cloud-ucloud-plugin</plugin.ucloud>
+               	<plugin.qcloud>fit2cloud-qcloud-plugin</plugin.qcloud>
+               	<plugin.azure>fit2cloud-azure-plugin</plugin.azure>
+               	<plugin.vsphere55>fit2cloud-vsphere55-plugin</plugin.vsphere55>
+               	<plugin.vsphere60>fit2cloud-vsphere60-plugin</plugin.vsphere60>
+               	<plugin.openstackV1>fit2cloud-openstackV1-plugin</plugin.openstackV1>
+               	<plugin.openstackV2>fit2cloud-openstackV2-plugin</plugin.openstackV2>
+               	<plugin.qingcloud.enterprise>fit2cloud-qingcloud-enterprise-plugin</plugin.qingcloud.enterprise>
+		<plugin.ksyun>fit2cloud-ksyun-plugin</plugin.ksyun>
+		<plugin.fusioncompute>fit2cloud-fusioncompute-plugin</plugin.fusioncompute>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>2.4</version>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+					<finalName>${project.artifactId}-${project.version}</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- download artifacts from this repo -->
+	<repositories>
+                <repository>
+                  <id>fit2cloud-enterprise-release</id>
+                  <name>Fit2Cloud Enterprise Release</name>
+                  <url>http://repository.fit2cloud.com/content/repositories/fit2cloud-enterprise-release/</url>
+                  <releases>
+                      <enabled>true</enabled>
+                  </releases>
+                  <snapshots>
+                      <enabled>true</enabled>
+                  </snapshots>
+                </repository>
+		<repository>
+			<id>fit2cloud</id>
+			<name>fit2cloud</name>
+			<url>http://repository.fit2cloud.com/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.milestone</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Milestones</name>
+			<url>http://repository.springsource.com/maven/bundles/milestone</url>
+		</repository>
+	</repositories>
+
+	<!-- download plugins from this repo -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>fit2cloud</id>
+			<name>fit2cloud</name>
+			<url>http://repository.fit2cloud.com/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+</project>
