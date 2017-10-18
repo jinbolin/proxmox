@@ -31,7 +31,6 @@
 			"related":[
 				"storage",
 				"target",
-				"vmid",
 				"network"
 			]
 		},
@@ -48,7 +47,6 @@
 			"label":"目的主机:",
 			"related":[
 				"storage",
-				"vmid",
 				"network"
 			]
 		},
@@ -62,10 +60,7 @@
 			"parent":false,
 			"method":"getDataStores",
 			"role":"admin",
-			"label":"目的存储器:",
-			"related":[
-				"vmid"
-			]
+			"label":"目的存储器:"
 		},
 		{
 			"inputType":"combobox",

@@ -124,30 +124,16 @@ public class ProxmoxCloudprovider extends AbstractCloudProvider {
             }
             if (full.equals("true")){
                 if (target !=null){
-                    if(node.equals(target)){
-                        List<DataStore> dataStoreList = client.listDatastores(target);
-                        for (DataStore dataStore:dataStoreList){
-                            String status = dataStore.getStatus();
-                            if(!status.equals("0")){
-                                F2CDataStore f2CDataStore = new F2CDataStore();
-                                f2CDataStore.setDataStoreName(dataStore.getDataStoreName());
-                                datastores.add(f2CDataStore);
-                            }
+                    List<DataStore> dataStoreList = client.listDatastores(target);
+                    for (DataStore dataStore:dataStoreList){
+                        String status = dataStore.getStatus();
+                        if(!status.equals("0")){
+                            F2CDataStore f2CDataStore = new F2CDataStore();
+                            f2CDataStore.setDataStoreName(dataStore.getDataStoreName());
+                            datastores.add(f2CDataStore);
                         }
-                        return datastores;
-                    }else {
-                        List<DataStore> dataStoreList = client.listDatastores(target);
-                        for (DataStore dataStore:dataStoreList){
-                            String status = dataStore.getStatus();
-                            String shared = dataStore.getShared();
-                            if(shared.equals("1") && status.equals("1")){
-                                F2CDataStore f2CDataStore = new F2CDataStore();
-                                f2CDataStore.setDataStoreName(dataStore.getDataStoreName());
-                                datastores.add(f2CDataStore);
-                            }
-                        }
-                        return datastores;
                     }
+                    return datastores;
                 }
             }
         } catch (Exception e) {
@@ -590,14 +576,12 @@ public class ProxmoxCloudprovider extends AbstractCloudProvider {
 
     public List<F2CImage> getImages(String getImagesRequest) {
         List<F2CImage> templates = new ArrayList<F2CImage>();
-        List<F2CImage> templateShared = new ArrayList<F2CImage>();
+        List<F2CImage> templateExp = new ArrayList<F2CImage>();
         try {
             GetImageRequest req = new Gson().fromJson(getImagesRequest, GetImageRequest.class);
             String node = req.getNode();
             Pve2Api client = req.getProxmoxClient();
             String full = req.getFull();
-            String storage = req.getStorage();
-            String target = req.getTarget();
             List<VmQemu> vmList = client.getQemuVMs(node);
             //模板主机下所有模板
             if (vmList != null && vmList.size() > 0) {
@@ -608,69 +592,44 @@ public class ProxmoxCloudprovider extends AbstractCloudProvider {
                     }
                 }
             }
-            List<F2CImage> template = new ArrayList<F2CImage>();
-            for (F2CImage f2CImage:templates){
-                template.add(f2CImage);
-            }
-            //模板主机下所有模板
-            List<F2CImage> templateAll = new ArrayList<F2CImage>();
-            for (F2CImage f2CImage:templates){
-                templateAll.add(f2CImage);
-            }
-            //模板主机下筛除共享模板
-            List<DataStore> dataStoreList1 = client.listDatastores(node);
-            if (dataStoreList1 != null) {
-                for (DataStore dataStore : dataStoreList1) {
-                    String storeName = dataStore.getDataStoreName();
-                    String shared = client.getShared(node, storeName);
-                    if (shared.equals("1")) {
-                        List<String> vmidList = client.getVmidUnderStorage(node, storeName);
-                        for (int j = 0; j < template.size(); j++) {
-                            for (int i = 0; i < template.size(); i++) {
-                                String vmid = template.get(i).getId();
-                                if (vmidList.contains(vmid)) {
-                                    template.remove(i);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
             //存放模板id
             List<String> stringList4 = new ArrayList<String>();
             for (F2CImage f2CImage1:templates){
                 stringList4.add(f2CImage1.getId());
             }
 
-            //获取主机下所有模板和其他主机的共享模板
-            if (full.equals("true") && node !=null && target != null){
-                List<DataStore> dataStoreList = client.listDatastores(node);
-                for (DataStore dataStore:dataStoreList){
-                    String status = dataStore.getStatus();
-                    String shared = dataStore.getShared();
-                    if (shared !=null && status !=null){
-                        if (status.equals("1") && shared.equals("1")){
-                            String storageExp = dataStore.getDataStoreName();
-                            //共享模版上的模板id
-                            List<String> stringList = client.getVmidUnderStorage(node,storageExp);
-                            //所有主机的nodeName
-                            List<String> stringList1 = client.getNodeList();
-                            for (String s:stringList1){
-                                //一台主机下的所有虚拟机id
-                                List<String> stringList2 = client.getQemuVMIds(s);
-                                for (String s1:stringList2){
-                                    if (stringList.contains(s1)){
-                                        VmQemu vmQemu = client.getQemuVM(s,Integer.parseInt(s1));
-                                        vmQemu.setVmId(s1);
-                                        F2CImage f2CImage = ProxmoxUtil.toF2CImage(vmQemu);
-                                        if (f2CImage != null) {
-                                            //筛除相同模版
-                                            if (stringList4 !=null){
-                                                if (!stringList4.contains(f2CImage.getId())){
+            List<DataStore> dataStoreList = client.listDatastores(node);
+            for (DataStore dataStore:dataStoreList){
+                String status = dataStore.getStatus();
+                String shared = dataStore.getShared();
+                if (shared !=null && status !=null){
+                    if (status.equals("1") && shared.equals("1")){
+                        String storageExp = dataStore.getDataStoreName();
+                        //共享模版上的模板id
+                        List<String> stringList = client.getVmidUnderStorage(node,storageExp);
+                        //所有主机的nodeName
+                        List<String> stringList1 = client.getNodeList();
+                        for (String s:stringList1){
+                            //一台主机下的所有虚拟机id
+                            List<String> stringList2 = client.getQemuVMIds(s);
+                            for (String s1:stringList2){
+                                if (stringList.contains(s1)){
+                                    VmQemu vmQemu = client.getQemuVM(s,Integer.parseInt(s1));
+                                    vmQemu.setVmId(s1);
+                                    F2CImage f2CImage = ProxmoxUtil.toF2CImage(vmQemu);
+                                    if (f2CImage != null) {
+                                        //筛除相同模版
+                                        if (stringList4 !=null){
+                                            if (!stringList4.contains(f2CImage.getId())){
+                                                if (full.equals("false")){
                                                     templates.add(f2CImage);
+                                                    return templates;
                                                 }
+                                                if (full.equals("true")){
+                                                    templateExp.add(f2CImage);
+                                                    return templateExp;
+                                                }
+
                                             }
                                         }
                                     }
@@ -679,56 +638,6 @@ public class ProxmoxCloudprovider extends AbstractCloudProvider {
                         }
                     }
                 }
-            }
-            if (full !=null){
-                //链接克隆
-                if (full.equals("false")){
-                    String shared = client.getShared(node,storage);
-                    if (shared.equals("1")){
-                        List<String> vmidList = client.getVmidUnderStorage(node, storage);
-                        for (int i = 0; i < templateAll.size(); i++) {
-                            String id = templateAll.get(i).getId();
-                            if (vmidList.contains(id)){
-                                templateShared.add(templateAll.get(i));
-                            }
-                        }
-                        //所模板主机下筛选共享模板
-                        return templateShared;
-                    }
-                    if (shared.equals("0")){
-                        //模板主机下筛除共享模板
-                        return template;
-                    }
-                }
-                //全克隆
-                if (full.equals("true")){
-                    List<F2CImage> templateExp = new ArrayList<F2CImage>();
-                    List<String> stringList = client.getVmidUnderStorage(target,storage);
-                    for (F2CImage f2CImage:templates){
-                        String vmid = f2CImage.getId();
-                        if (stringList.contains(vmid)){
-                            templateExp.add(f2CImage);
-                        }
-                    }
-                    if (target != null && storage !=null){
-                        if (target.equals(node)){
-                            String shared = client.getShared(target,storage);
-                            if (shared.equals("1")){
-                                //所有模板
-                                return templates;
-                            }
-                            if (shared.equals("0")){
-                                //模板主机下筛除共享模板
-                                return templateAll;
-                            }
-                        }
-                        if (!target.equals(node)){
-                            //只能选共享模板
-                            return templateExp;
-                        }
-                    }
-                }
-
             }
 
         } catch (Exception e) {

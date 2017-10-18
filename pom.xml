@@ -7,9 +7,6 @@
     	<artifactId>cloud-plugins</artifactId>
 	<packaging>pom</packaging>
 	<version>0.2</version>
-    <modules>
-        <module>fit2cloud-openstackV3-HT-plugin</module>
-    </modules>
     <name>Fit2Cloud Cloud Plugins</name>
 
 	<properties>
